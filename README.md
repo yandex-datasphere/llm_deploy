@@ -1,2 +1,10 @@
-# llm_deploy
-Examples for Deploying Open-Source LLMs on DataSphere
+# Запуск открытых LLM в облаке Yandex Cloud
+
+Данный репозиторий содержит несколько примеров того, как можно развернуть открытые большие языковые модели (LLM) в своём облаке Yandex Cloud.
+
+Вы можете запустить LLM на ресурсах с CPU или с GPU, выбрав один из приведённых ниже способов деплоймента.
+
+CPU/GPU | Библиотека | Инструкции | Комментарии 
+--------|------------|------------|------------
+CPU | Google [localllm](https://github.com/GoogleCloudPlatform/localllm) | [Читать](localllm/README.md) | Используем квантизированные модели для ускорения работы
+GPU | [vLLM](https://github.com/vllm-project/vllm) | [Читать](vLLM/README.md) | Работает только на GPU
