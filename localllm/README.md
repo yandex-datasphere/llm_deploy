@@ -13,24 +13,22 @@
 1. Клонируйте данный репозиторий `git clone http://yandex-datasphere/llm_deploy`
 2. Перейдите в папку `localllm`: `cd localllm`
 3. Откройте `Dockerfile` и отредактируйте следующую строчку, указав имя модели с HuggingFace, которую вы хотите использовать (в качестве ориентира, хорошо подходят все [квантизированные модели от TheBloke](https://huggingface.co/TheBloke)):
-```
-ENV MODEL TheBloke/saiga_mistral_7b-GGUF
-```
+    ```
+    ENV MODEL TheBloke/saiga_mistral_7b-GGUF
+    ```
 3. Соберите Docker-образ с помощью следующей команды:
-```bash
-docker build --platform linux/amd64 -t localllm .
-```
-> При сборке обязательно нужно указать параметр --platform, чтобы образ корректно запустился в DataSphere.
-
-В результате вы получите Docker-образ, который можно запустить локально:
-```bash
-docker run -p 8000:8000 localllm
-```
-
-Проверить работоспособность образа вы сможете, выполнив стандартный REST-запрос:
-```bash
-curl http://127.0.0.1:8000/v1/models
-```
+    ```bash
+    docker build --platform linux/amd64 -t localllm .
+    ```
+    > При сборке обязательно нужно указать параметр --platform, чтобы образ корректно запустился в DataSphere.
+4. В результате вы получите Docker-образ, который можно запустить локально:
+    ```bash
+    docker run -p 8000:8000 localllm
+    ```
+5. Проверить работоспособность образа вы сможете, выполнив стандартный REST-запрос:
+    ```bash
+    curl http://127.0.0.1:8000/v1/models
+    ```
 
 > В данном Docker-образе осуществляется предзагрузка заданной модели, из-за чего размер образа получается достаточно большим, зато при каждом запуске контейнера не тратится время на скачивание модели с серверов HuggingFace. Если вы не предполагаете часто запускать и останавливать контейнер, то вы можете резко сократить объем Docker-образа, удалив из DockerFile строку `llm pull ${MODEL}`  
 
@@ -44,47 +42,47 @@ curl http://127.0.0.1:8000/v1/models
 1. Задайте этот каталог каталогом по умолчанию: `yc config set folder-name <название_каталога>`.
 1. В каталоге создайте сервисный аккаунт с необходимыми правами доступа - на чтение/запись в Container Registry, на работу с DataSphere.
 1. Для сервисного аккаунта создайте json-файл с ключём доступа, он вам потом понадобится:
-```bash
-yc iam key create --service-account-name <имя_сервисного_аккаунта> \ 
-    --output key.json --folder-id <ID_каталога>
-```
+    ```bash
+    yc iam key create --service-account-name <имя_сервисного_аккаунта> \ 
+        --output key.json --folder-id <ID_каталога>
+    ```
 
 ### Помещаем Docker-образ в Container Registry
 
 1. Для хранения Docker-образа создайте в облаке реестр Container Registry, если у вас её пока нет. Скопируйте идентификатор реестра.
-> Идентификатор реестра можно посмотреть, выполнив команду `yc container registry list`
+    > Идентификатор реестра можно посмотреть, выполнив команду `yc container registry list`
 1. Получите IAM-токен для своего пользовательского аккаунта: `yc iam create-token`.
 1. Войдите в контейнерный реестр, выполнив команду ниже (подставьте вместо <IAM-токен> значение токена с предыдущего шага):
-```bash
-docker login \
---username iam \
---password <IAM-токен> \
-cr.yandex
-```
+    ```bash
+    docker login \
+    --username iam \
+    --password <IAM-токен> \
+    cr.yandex
+    ```
 1. Загрузите Docker-образ в Container Registry:
-```bash
-docker tag localllm cr.yandex/<идентификатор_реестра>/localllm:latest
-docker push cr.yandex/<идентификатор_реестра>/localllm:latest
-```
+    ```bash
+    docker tag localllm cr.yandex/<идентификатор_реестра>/localllm:latest
+    docker push cr.yandex/<идентификатор_реестра>/localllm:latest
+    ```
 > При необходимости можно использовать Docker Hub или другой реестр для хранения образа.
 
 ### Создаём ноду DataSphere
 
 1. В настройках проекта DataSphere обязательно укажите каталог по умолчанию и сервисный аккаунт, который вы используете. 
 1. В проекте DataSphere создайте новый ресурс "Нода" из Docker-образа. При создании укажите следующие параметры:
-* Имя: <имя_ноды>
-* Тип: Docker-образ
-* Путь к образу: `cr.yandex/<id_container_registry>/localllm:latest`
-* Порт: 8000
-* Таймаут: 180 секунд
-* Для того, чтобы нода могла получить доступ к container registry, в дополнительных параметрах укажите:
-   - Имя пользователя: `json_key`
-   - Секрет с паролем: создайте секрет в DataSphere, содержащий всё содержимое файла `json.key`, созданного выше.
+    * Имя: <имя_ноды>
+    * Тип: Docker-образ
+    * Путь к образу: `cr.yandex/<id_container_registry>/localllm:latest`
+    * Порт: 8000
+    * Таймаут: 180 секунд
+    * Для того, чтобы нода могла получить доступ к container registry, в дополнительных параметрах укажите:
+        - Имя пользователя: `json_key`
+        - Секрет с паролем: создайте секрет в DataSphere, содержащий всё содержимое файла `json.key`, созданного выше.
 1. Для тестирования развернутой ноды, можно перейти во вкладку **запрос** и сделать GET-запрос по адресу `/v1/models` - в результате вы получите в ответ список моделей в формате JSON.
 1. Вы также можете сделать запрос из интернет, не забывая указывать параметры авторизации облака (IAM-токен), а также идентификатор ноды и облачного каталога:
-```
-curl -H "x-node-id: <id_ноды>" -H "Authorization: Bearer <IAM_TOKEN>" -H "x-folder-id: <id_каталога>" https://node-api.datasphere.yandexcloud.net/invoke/v1/models
-```
+    ```
+    curl -H "x-node-id: <id_ноды>" -H "Authorization: Bearer <IAM_TOKEN>" -H "x-folder-id: <id_каталога>" https://node-api.datasphere.yandexcloud.net/invoke/v1/models
+    ```
 
 ### Результат
 
