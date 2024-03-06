@@ -8,3 +8,5 @@ CPU/GPU | Библиотека | Инструкции | Комментарии
 --------|------------|------------|------------
 CPU | Google [localllm](https://github.com/GoogleCloudPlatform/localllm) | [Читать](localllm/README.md) | Используем квантизированные модели для ускорения работы
 GPU | [vLLM](https://github.com/vllm-project/vllm) | [Читать](vLLM/README.md) | Работает только на GPU
+
+Описанные выше способы предоставляют OpenAI-совместимое API, что позволяет использовать развёрнутые таким образом модели из большинства популярных фреймворков. Пример использования моделей из LangChain содержится в [examples/langchain_demo.py](examples/langchain_demo.py).
