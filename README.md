@@ -8,7 +8,7 @@ CPU/GPU | Библиотека | Инструкции | Комментарии
 --------|------------|------------|------------
 CPU | Google [localllm](https://github.com/GoogleCloudPlatform/localllm) | [Читать](localllm/README.md) | Используем квантизированные модели для ускорения работы
 GPU | [vLLM](https://github.com/vllm-project/vllm) | [Читать](vLLM/README.md) | Работает только на GPU
-CPU/GPU | FastAPI | [Читать](fastapi/Dockerfile) | 1 parallel request max
-CPU/GPU | Ollama | [Читать](ollama/README.md) | >1 parallel requests, [Как?](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-does-ollama-handle-concurrent-requests)
+CPU/GPU | FastAPI | [Читать](fastapi/Dockerfile) | NOT OAI compatible, >1 parallel request max
+CPU/GPU | Ollama | [Читать](ollama/README.md) | NOT OAI compatible, >1 parallel requests, [Как?](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-does-ollama-handle-concurrent-requests)
 
 Описанные выше способы предоставляют OpenAI-совместимое API, что позволяет использовать развёрнутые таким образом модели из большинства популярных фреймворков. Пример использования моделей из LangChain содержится в [examples/langchain_demo.py](examples/langchain_demo.py).
